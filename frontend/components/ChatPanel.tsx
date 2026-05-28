@@ -20,6 +20,7 @@ type ChatPanelProps = {
   messages: ChatMessage[];
   suggestions: string[];
   onAsk: (question: string) => Promise<void>;
+  onNewChat: () => void;
   isAsking: boolean;
 };
 
@@ -117,7 +118,7 @@ function MessageBubble({ message }: { message: ChatMessage }) {
   );
 }
 
-export function ChatPanel({ messages, suggestions, onAsk, isAsking }: ChatPanelProps) {
+export function ChatPanel({ messages, suggestions, onAsk, onNewChat, isAsking }: ChatPanelProps) {
   const [input, setInput] = useState("");
   const visibleSuggestions = useMemo(() => suggestions.slice(0, 4), [suggestions]);
 
@@ -147,9 +148,20 @@ export function ChatPanel({ messages, suggestions, onAsk, isAsking }: ChatPanelP
               Les réponses s&apos;appuient sur les passages retrouvés dans vos documents indexés.
             </p>
           </div>
-          <div className="flex items-center gap-2 rounded-lg border border-[#ded8ce] bg-[#fbfaf7] px-3 py-2 text-xs font-semibold text-[#596273]">
-            <MessageSquarePlus className="h-4 w-4 text-[#156348]" />
-            Conversation locale
+          <div className="flex flex-wrap items-center gap-2">
+            <div className="flex items-center gap-2 rounded-lg border border-[#ded8ce] bg-[#fbfaf7] px-3 py-2 text-xs font-semibold text-[#596273]">
+              <Sparkles className="h-4 w-4 text-[#156348]" />
+              Conversation locale
+            </div>
+            <button
+              type="button"
+              onClick={onNewChat}
+              disabled={isAsking}
+              className="flex h-10 items-center justify-center gap-2 rounded-lg bg-[#172033] px-3 text-xs font-semibold text-white shadow-sm transition hover:bg-[#24314a] disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              <MessageSquarePlus className="h-4 w-4" />
+              Nouveau chat
+            </button>
           </div>
         </div>
       </header>

@@ -11,13 +11,15 @@ import { deleteDocument, getDocuments, sendChat, uploadDocument } from "@/lib/ap
 import { makeId } from "@/lib/utils";
 import type { AnalysisMode, ChatMessage, DocumentMetadata, Source } from "@/types/api";
 
-const initialMessage: ChatMessage = {
-  id: "assistant-welcome",
-  role: "assistant",
-  content:
-    "Bonjour, je suis LexIA. Chargez un contrat, une note ou un texte juridique, puis interrogez-le avec des réponses sourcées.",
-  createdAt: new Date().toISOString(),
-};
+function createInitialMessage(): ChatMessage {
+  return {
+    id: makeId("assistant-welcome"),
+    role: "assistant",
+    content:
+      "Bonjour, je suis LexIA. Chargez un contrat, une note ou un texte juridique, puis interrogez-le avec des réponses sourcées.",
+    createdAt: new Date().toISOString(),
+  };
+}
 
 const defaultSuggestions = [
   "Quels sont les points juridiques essentiels ?",
@@ -29,7 +31,7 @@ const defaultSuggestions = [
 export default function Home() {
   const [documents, setDocuments] = useState<DocumentMetadata[]>([]);
   const [selectedDocumentIds, setSelectedDocumentIds] = useState<string[]>([]);
-  const [messages, setMessages] = useState<ChatMessage[]>([initialMessage]);
+  const [messages, setMessages] = useState<ChatMessage[]>(() => [createInitialMessage()]);
   const [mode, setMode] = useState<AnalysisMode>("standard");
   const [documentQuery, setDocumentQuery] = useState("");
   const [isUploading, setIsUploading] = useState(false);
@@ -128,6 +130,12 @@ export default function Home() {
     setSelectedDocumentIds(indexedIds);
   }
 
+  function startNewChat() {
+    if (isAsking) return;
+    setMessages([createInitialMessage()]);
+    flash("success", "Nouveau chat créé. Les documents restent disponibles.");
+  }
+
   async function ask(question: string) {
     if (!question.trim() || isAsking) return;
 
@@ -220,7 +228,13 @@ export default function Home() {
           history={history}
         />
 
-        <ChatPanel messages={messages} suggestions={suggestions} onAsk={ask} isAsking={isAsking} />
+        <ChatPanel
+          messages={messages}
+          suggestions={suggestions}
+          onAsk={ask}
+          onNewChat={startNewChat}
+          isAsking={isAsking}
+        />
 
         <div className="xl:block">
           <AnalysisPanel
